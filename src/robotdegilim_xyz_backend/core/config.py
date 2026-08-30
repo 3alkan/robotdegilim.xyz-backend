@@ -4,6 +4,7 @@ from functools import lru_cache
 class Settings(BaseSettings):
     # App Settings
     PROJECT_NAME: str = "robotdegilim.xyz API"
+    PROJECT_DESCRIPTION: str = "Backend for robotdegilim.xyz"
     VERSION: str = "0.1.0"
     API_V1_STR: str = "/api/v1"
 
