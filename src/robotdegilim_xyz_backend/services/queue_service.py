@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
 from robotdegilim_xyz_backend.clients.s3_client import s3_client
+from robotdegilim_xyz_backend.utils.time import get_now_utc_string
 
 def enqueue_job(job_name: str, payload: dict | None = None) -> dict:
     """
@@ -17,9 +17,8 @@ def enqueue_job(job_name: str, payload: dict | None = None) -> dict:
             "message": f"A '{job_name}' job is already pending in the queue."
         }
         
-    # 2. Generate a visual timestamp for the filename (e.g., 20260830_213500)
-    # Using UTC time is the industry standard for backend systems
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    # 2. Generate a visual timestamp for the filename
+    timestamp = get_now_utc_string()
     file_key = f"queue/{job_name}_{timestamp}.pending"
     
     # 3. Upload the ticket to reserve the spot

@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     LOG_JSON: bool = False
     LOG_TO_FILE: bool = False
     LOG_FILE_PATH: str = "logs/app.log"
+    
+    # Worker Configuration
+    WORKER_POLL_INTERVAL: int = 10
 
     model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True, extra="ignore")
 
