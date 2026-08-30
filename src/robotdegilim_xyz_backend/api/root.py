@@ -16,6 +16,7 @@ def api_discovery():
         "links": {
             "self": "/",
             "docs": "/docs",
-            "health": f"{settings.API_V1_STR}/health"
+            "health": f"{settings.API_V1_STR}/health",
+            "scrape": f"{settings.API_V1_STR}/jobs/scrape"
         }
     }
