@@ -3,8 +3,10 @@ name = "robotdegilim-xyz-backend"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = "3.12"
-dependencies = []
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.141.1",
+]
 
 [project.scripts]
 robotdegilim-xyz-backend = "robotdegilim_xyz_backend:main"
