@@ -1,0 +1,14 @@
+[project]
+name = "robotdegilim-xyz-backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = "3.12"
+dependencies = []
+
+[project.scripts]
+robotdegilim-xyz-backend = "robotdegilim_xyz_backend:main"
+
+[build-system]
+requires = ["uv_build>=0.12.7,<0.13.0"]
+build-backend = "uv_build"
