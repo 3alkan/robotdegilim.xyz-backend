@@ -11,8 +11,10 @@ class Settings(BaseSettings):
     # CORS Settings (can be parsed from a string like "http://localhost,https://example.com")
     BACKEND_CORS_ORIGINS: list[str] = ["*"]
 
-    # Optional External Service Keys (e.g. for Captcha verification, AI, etc.)
-    # SOME_API_KEY: str | None = None
+    # S3 Configuration
+    S3_BUCKET: str
+    S3_ACCESS_KEY_ID: str
+    S3_SECRET_ACCESS_KEY: str
 
     model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True, extra="ignore")
 
