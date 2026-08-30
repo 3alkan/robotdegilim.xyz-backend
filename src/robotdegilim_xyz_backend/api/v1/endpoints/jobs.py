@@ -1,17 +1,13 @@
 from fastapi import APIRouter
+from robotdegilim_xyz_backend.services.queue_service import enqueue_job
+from robotdegilim_xyz_backend.schemas.job import JobResponse
 
 router = APIRouter()
 
-@router.post("/scrape")
+@router.post("/scrape", response_model=JobResponse)
 def trigger_scrape_job():
     """
     Trigger the main scraping job.
-    
-    This job handles:
-    - Web requests
-    - HTML parsing
-    - Dictionary aggregation
-    - Local saving and S3 uploading
     """
-    # TODO: Integrate the actual scraping service logic here
-    return {"message": "Scrape job triggered successfully."}
+    result = enqueue_job(job_name="scrape")
+    return JobResponse(**result)

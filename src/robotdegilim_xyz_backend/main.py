@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from collections.abc import AsyncGenerator
 
@@ -8,19 +9,20 @@ from robotdegilim_xyz_backend.api.root import router as root_router
 from robotdegilim_xyz_backend.api.v1.api import api_router
 from robotdegilim_xyz_backend.core.config import get_settings
 from robotdegilim_xyz_backend.core.exceptions import AppException, app_exception_handler
+from robotdegilim_xyz_backend.core.logging import setup_logging
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     """Run startup and shutdown lifecycle hooks for the FastAPI app."""
-    # --- Startup Logic ---
-    print("Application is starting up... (Placeholder)")
+    # Setup global standard logging format
+    setup_logging()
     
+    logger.info("Application is starting up...")
     yield
-    
-    # --- Shutdown Logic ---
-    print("Application is shutting down... (Placeholder)")
+    logger.info("Application is shutting down...")
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
