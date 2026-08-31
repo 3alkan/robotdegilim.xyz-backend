@@ -24,6 +24,12 @@ class Settings(BaseSettings):
     
     # Worker Configuration
     WORKER_POLL_INTERVAL: int = 10
+    
+    # Anti-Ban / HumanizedClient Configuration
+    HUMANIZED_CLIENT_MIN_DELAY_SEC: float = 1.5
+    HUMANIZED_CLIENT_MAX_DELAY_SEC: float = 3.5
+    HUMANIZED_CLIENT_MAX_RETRIES: int = 3
+    HUMANIZED_CLIENT_BROWSER: str = "chrome120"
 
     model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True, extra="ignore")
 
