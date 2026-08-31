@@ -31,3 +31,15 @@ DAYS_MAP = {
     "Saturday": 5,
     "Sunday": 6,
 }
+
+# Manual overrides for specific department codes to bypass fetching prefixes
+DEPARTMENT_PREFIX_OVERRIDES = {
+    "459": {"n": "Biology Education/Biyoloji Öğretmenliği ", "p": "BED"},
+    "422": {"n": "Chemistry Education/Kimya Öğretmenliği ", "p": "CHED"},
+    "411": {"n": "Elementary and Early Childhood Education/Temel Eğitim ", "p": "ECE"},
+    "410": {"n": "Elementary Education/İlköğretim ", "p": "ELE"},
+    "413": {"n": "Elementary Mathematics Educ./İlköğretim Matematik Öğretmenliği ", "p": "EME"},
+    "412": {"n": "Elementary Science Education/Fen Bilgisi Öğretmenliği ", "p": "ESE"},
+    "423": {"n": "Mathematics Education/Matematik Öğretmenliği ", "p": "MHED"},
+    "421": {"n": "Physics Education/Fizik Öğretmenliği ", "p": "PHED"}
+}
