@@ -38,6 +38,13 @@ class AppException(Exception):
     def to_log(self, *, include_stack: bool = False) -> dict[str, Any]:
         """Build structured log payload for this error."""
         payload = {"message": self.message}
+        
+        # MAGIC: Automatically grab whatever the worker was doing when it crashed!
+        from robotdegilim_xyz_backend.core.context import worker_context
+        current_ctx = worker_context.get()
+        if current_ctx:
+            payload["worker_state"] = current_ctx
+            
         if self.code:
             payload["code"] = self.code
         if self.context:

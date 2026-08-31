@@ -37,6 +37,16 @@ class S3Client:
             logger.error(f"S3 Upload failed for key {key}: {e}")
             raise AppException("Failed to communicate with the storage service.", status_code=503)
 
+    def download_json(self, key: str) -> dict:
+        try:
+            response = self.client.get_object(Bucket=self.bucket, Key=key)
+            return json.loads(response['Body'].read().decode('utf-8'))
+        except ClientError as e:
+            if e.response['Error']['Code'] == 'NoSuchKey':
+                raise AppException(f"Key {key} not found", status_code=404)
+            logger.error(f"S3 Download failed for key {key}: {e}")
+            raise AppException("Failed to communicate with the storage service.", status_code=503)
+
     def list_files(self, prefix: str) -> list[dict]:
         try:
             response = self.client.list_objects_v2(Bucket=self.bucket, Prefix=prefix)
