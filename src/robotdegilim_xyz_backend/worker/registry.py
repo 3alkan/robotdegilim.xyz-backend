@@ -1,5 +1,5 @@
 from datetime import timedelta
-from robotdegilim_xyz_backend.jobs.scrape import run_scrape
+from robotdegilim_xyz_backend.jobs.scrape.run import run_scrape
 
 # The Central Job Registry
 # Maps a job name to its execution function and auto-run threshold.

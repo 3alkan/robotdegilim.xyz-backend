@@ -7,15 +7,15 @@ from robotdegilim_xyz_backend.core.config import get_settings
 from robotdegilim_xyz_backend.clients.s3_client import s3_client
 from robotdegilim_xyz_backend.worker.registry import JOB_REGISTRY
 from robotdegilim_xyz_backend.utils.time import get_now_utc_string
+from robotdegilim_xyz_backend.core.constants import S3Prefix, GlobalLock
+from robotdegilim_xyz_backend.services.queue_service import enqueue_job
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
-LOCK_FILE = "locks/worker.lock"
-
 def process_queue() -> bool:
     """Checks the queue and runs the oldest pending job. Returns True if a job was run."""
-    pending_files = s3_client.list_files("queue/")
+    pending_files = s3_client.list_files(S3Prefix.QUEUE)
     if not pending_files:
         return False
         
@@ -39,7 +39,6 @@ def process_queue() -> bool:
     _execute_job(job_name)
     return True
 
-from robotdegilim_xyz_backend.services.queue_service import enqueue_job
 
 def process_auto_scheduler() -> bool:
     """Checks job-states/ and enqueues jobs that exceed their threshold. Returns True if any were enqueued."""
@@ -52,7 +51,7 @@ def process_auto_scheduler() -> bool:
             continue
             
         # Look for any state file (success or failed) for this job
-        states = s3_client.list_files(f"job-states/{job_name}_")
+        states = s3_client.list_files(f"{S3Prefix.JOB_STATES}{job_name}_")
         
         needs_run = False
         if not states:
@@ -88,11 +87,11 @@ def _execute_job(job_name: str):
         status_ext = "failed"
     finally:
         # Wipe old state files (so there is only ever 1 file per job type)
-        s3_client.delete(prefix=f"job-states/{job_name}_")
+        s3_client.delete(prefix=f"{S3Prefix.JOB_STATES}{job_name}_")
         
         # Upload the new state file with the exact current timestamp in the name
         timestamp = get_now_utc_string()
-        new_state_file = f"job-states/{job_name}_{timestamp}.{status_ext}"
+        new_state_file = f"{S3Prefix.JOB_STATES}{job_name}_{timestamp}.{status_ext}"
         s3_client.upload_json(new_state_file)
         logger.info(f"Updated job state: {new_state_file}")
 
@@ -101,13 +100,13 @@ def main_loop():
     
     while True:
         try:
-            if s3_client.file_exists(LOCK_FILE):
+            if s3_client.file_exists(GlobalLock.WORKER):
                 # Another worker is busy, or the lock is stuck.
                 time.sleep(settings.WORKER_POLL_INTERVAL)
                 continue
                 
             # Claim the global lock
-            s3_client.upload_json(LOCK_FILE, {"locked_by": "worker", "time": get_now_utc_string()})
+            s3_client.upload_json(GlobalLock.WORKER, {"locked_by": "worker", "time": get_now_utc_string()})
             
             try:
                 # 1. Always prioritize the manual queue
@@ -118,7 +117,7 @@ def main_loop():
                     process_auto_scheduler()
             finally:
                 # 3. ALWAYS release the lock, even if a job crashed
-                s3_client.delete(key=LOCK_FILE)
+                s3_client.delete(key=GlobalLock.WORKER)
                 
         except Exception as e:
             logger.error(f"Worker loop encountered a critical error: {e}")
