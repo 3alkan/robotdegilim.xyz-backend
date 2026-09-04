@@ -5,6 +5,7 @@ from robotdegilim_xyz_backend.core.context import app_context
 from robotdegilim_xyz_backend.core.exceptions import AppException
 from robotdegilim_xyz_backend.clients.s3_client import s3_client
 from robotdegilim_xyz_backend.jobs.scrape import fetch, parse
+from robotdegilim_xyz_backend.utils.time import get_now_iso_string
 
 logger = logging.getLogger(__name__)
 
@@ -34,3 +35,16 @@ def run_scrape() -> None:
         
         current_semester = parse.extract_current_semester(semester_info_soup)
         programs = parse.extract_programs(semester_info_soup)
+        
+        # Initialize our master JSON data structure
+        final_data = {
+            "metadata": {
+                "semester_code": current_semester["code"],
+                "semester_name": current_semester["name"],
+                "updated_at": get_now_iso_string()
+            },
+            "programs": programs
+        }
+        
+        logger.info(f"Targeting semester: {current_semester['name']} ({current_semester['code']}) with {len(programs)} programs.")
+
