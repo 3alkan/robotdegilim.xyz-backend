@@ -4,6 +4,21 @@ from robotdegilim_xyz_backend.core.exceptions import AppException
 
 logger = logging.getLogger(__name__)
 
+def to_float(val: str) -> float:
+    """Helper to safely convert Turkish string numbers to float."""
+    try:
+        return float(val.strip().replace(',', '.')) if val.strip() else 0.0
+    except ValueError:
+        return 0.0
+
+def to_int(val: str) -> int:
+    """Helper to safely convert string numbers to int."""
+    try:
+        return int(float(val.strip().replace(',', '.'))) if val.strip() else 0
+    except ValueError:
+        return 0
+
+
 def extract_semester_info_url(soup: BeautifulSoup) -> str:
     """
     Extracts the dynamic 'Semester Information' package URL from the main page HTML.
@@ -101,3 +116,125 @@ def extract_programs(soup: BeautifulSoup) -> dict:
             }
             
     return programs
+
+def extract_courses(soup: BeautifulSoup) -> dict:
+    """
+    Parses the massive HTML table returned by the POST request.
+    Uses dynamic header mapping to prevent hardcoded column index errors.
+    Groups multiple rows by course and section to produce a nested JSON structure.
+    """
+    table = soup.find("table", {"id": "SearchResults"})
+    if not table:
+        logger.warning("No SearchResults table found. It might be an empty department.")
+        return []
+        
+    thead = table.find("thead")
+    tbody = table.find("tbody")
+    if not thead or not tbody:
+        return []
+        
+    # Dynamically build column mapping: {"Course Code": 4, "Capacity": 12, ...}
+    headers = thead.find_all("th")
+    col_map = {th.get_text(strip=True): idx for idx, th in enumerate(headers)}
+            
+    courses_dict = {}
+    
+    for row in tbody.find_all("tr"):
+        cols = row.find_all("td")
+        if not cols:
+            continue
+            
+        tds = [td.get_text(strip=True) for td in cols]
+        
+        # Safely convert the row into a key-value dictionary using the dynamic col_map
+        row_data = {name: (tds[idx] if idx < len(tds) else "") for name, idx in col_map.items()}
+        
+        course_code = row_data.get("Course Code")
+        if not course_code:
+            continue
+            
+        if course_code not in courses_dict:
+            courses_dict[course_code] = {
+                "code": course_code,
+                "name": row_data.get("Course Name", ""),
+                "credits": {
+                    "total": to_float(row_data.get("Credit", "")),
+                    "ects": to_float(row_data.get("ECTS Credit", "")),
+                    "lab": to_float(row_data.get("Laboratory Credit", "")),
+                    "theory": to_float(row_data.get("Theory Credit", "")),
+                    "application": to_float(row_data.get("Application Credit", ""))
+                },
+                "is_service_course": row_data.get("Service Course", "").lower() == "yes",
+                "level": row_data.get("Course Level", ""),
+                "type": row_data.get("Course Type", ""),
+                "sections": {}
+            }
+            
+        course_obj = courses_dict[course_code]
+        section_num_str = row_data.get("Course Section", "")
+        if not section_num_str:
+            continue
+            
+        section_num = to_int(section_num_str)
+        if section_num not in course_obj["sections"]:
+            course_obj["sections"][section_num] = {
+                "section_number": section_num,
+                "capacity": {
+                    "total": to_int(row_data.get("Capacity", "")),
+                    "exchange": to_int(row_data.get("Exchange Capacity", "")),
+                    "exchange_used": to_int(row_data.get("Exchange Used Capacity", ""))
+                },
+                "schedule": [],
+                "instructors": [],
+                "criteria": []
+            }
+            
+        section_obj = course_obj["sections"][section_num]
+        
+        # 1. Extract up to 5 schedule blocks (Columns like Day1, Day2, etc.)
+        for i in range(1, 6):
+            day = row_data.get(f"Day{i}")
+            if day:
+                sched_item = {
+                    "day": day,
+                    "start_hour": row_data.get(f"Start Hour{i}", ""),
+                    "end_hour": row_data.get(f"End Hour{i}", ""),
+                    "classroom": row_data.get(f"Classroom {i}", ""),
+                    "building": row_data.get(f"Classroom Building {i}", "")
+                }
+                if sched_item not in section_obj["schedule"]:
+                    section_obj["schedule"].append(sched_item)
+                    
+        # 2. Extract Instructors
+        inst_name = row_data.get("Instructor Name")
+        if inst_name:
+            inst_item = {
+                "name": inst_name,
+                "title": row_data.get("Instructor Title", "")
+            }
+            if inst_item not in section_obj["instructors"]:
+                section_obj["instructors"].append(inst_item)
+                
+        # 3. Extract Criteria
+        given_dept = row_data.get("Given Dept Name")
+        if given_dept or row_data.get("Start Char") or row_data.get("Min CumGPA") or row_data.get("Start Grade"):
+            crit_item = {
+                "given_dept": given_dept or "",
+                "start_char": row_data.get("Start Char", ""),
+                "end_char": row_data.get("End Char", ""),
+                "cgpa": {
+                    "min": to_float(row_data.get("Min CumGPA", "")), 
+                    "max": to_float(row_data.get("Max CumGPA", ""))
+                },
+                "year": {
+                    "min": to_int(row_data.get("Min Year", "")), 
+                    "max": to_int(row_data.get("Max Year", ""))
+                },
+                "start_grade": row_data.get("Start Grade", ""),
+                "end_grade": row_data.get("End Grade", "")
+            }
+            if crit_item not in section_obj["criteria"]:
+                section_obj["criteria"].append(crit_item)
+                
+    return courses_dict
+

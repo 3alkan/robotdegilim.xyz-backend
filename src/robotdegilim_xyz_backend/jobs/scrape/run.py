@@ -6,6 +6,7 @@ from robotdegilim_xyz_backend.core.exceptions import AppException
 from robotdegilim_xyz_backend.clients.s3_client import s3_client
 from robotdegilim_xyz_backend.jobs.scrape import fetch, parse
 from robotdegilim_xyz_backend.utils.time import get_now_iso_string
+from robotdegilim_xyz_backend.schemas.scrape_data import ScrapeData
 
 logger = logging.getLogger(__name__)
 
@@ -57,3 +58,13 @@ def run_scrape() -> None:
             )
             table_soup = BeautifulSoup(html_table, "html.parser")
             
+            # Extract and parse the courses
+            courses = parse.extract_courses(table_soup)
+            final_data["programs"][dept_code]["courses"] = courses
+            
+        logger.info(f"Scrape job completed successfully for {len(final_data['programs'])} programs.")
+        
+        # Validate the entire structured dictionary against our Pydantic schema
+        validated_data = ScrapeData(**final_data)
+        logger.info("Data successfully validated through Pydantic! No structural errors found.")
+        

@@ -55,12 +55,12 @@ class Course(BaseModel):
     is_service_course: bool
     level: str
     type: str
-    sections: List[Section]
+    sections: Dict[int, Section]
 
 class Program(BaseModel):
     short_name: str
     name: str
-    courses: List[Course] = Field(default_factory=list)
+    courses: Dict[str, Course] = Field(default_factory=dict)
 
 class Metadata(BaseModel):
     semester_code: str
