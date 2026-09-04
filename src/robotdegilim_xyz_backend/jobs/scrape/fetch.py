@@ -41,8 +41,16 @@ def fetch_program_courses(semester_code: str, program_code: str, stamp_token: st
         "submitSearchForm": "Search",
         "stamp": stamp_token
     }
+    headers = {
+        "X-Requested-With": "XMLHttpRequest",
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+    }
     
-    response = human_client.post(f"{SISConstants.BASE_URL.value}/main.php", data=payload)
+    response = human_client.post(
+        f"{SISConstants.BASE_URL.value}/main.php", 
+        data=payload,
+        headers=headers
+    )
     json_data = response.json()
     
     if json_data.get("error"):
