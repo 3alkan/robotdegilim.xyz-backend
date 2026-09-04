@@ -68,7 +68,7 @@ def extract_programs(soup: BeautifulSoup) -> dict:
     Extracts all available programs.
     Returns a dictionary keyed by code:
     {
-        "571": {"program_short_name": "CENG", "program_name": "Computer Engineering"}
+        "571": {"short_name": "CENG", "name": "Computer Engineering"}
     }
     """
     select = soup.find("select", {"name": "selectProgram"})
@@ -96,8 +96,8 @@ def extract_programs(soup: BeautifulSoup) -> dict:
                 name = text
                 
             programs[val] = {
-                "program_short_name": short_name,
-                "program_name": name
+                "short_name": short_name,
+                "name": name
             }
             
     return programs
