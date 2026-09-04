@@ -1,4 +1,5 @@
 import logging
+from robotdegilim_xyz_backend.core.exceptions import AppException
 from robotdegilim_xyz_backend.utils.http import human_client
 from robotdegilim_xyz_backend.core.constants import SISConstants
 
@@ -25,3 +26,29 @@ def get_semester_info_page(package_url: str) -> str:
     
     response = human_client.get(url)
     return response.text
+
+def fetch_program_courses(semester_code: str, program_code: str, stamp_token: str) -> str:
+    """
+    Sends a POST request to search for all courses in a specific program and semester.
+    Returns the raw HTML table string extracted from the JSON response.
+    """
+    logger.info(f"Fetching courses for program {program_code}...")
+    
+    payload = {
+        "selectCourseCriteriaType": "",
+        "selectSemester": semester_code,
+        "selectProgram": program_code,
+        "submitSearchForm": "Search",
+        "stamp": stamp_token
+    }
+    
+    response = human_client.post(f"{SISConstants.BASE_URL}/main.php", data=payload)
+    json_data = response.json()
+    
+    if json_data.get("error"):
+        raise AppException(
+            message=f"Failed to fetch courses for program {program_code}", 
+            code="FETCH_COURSES_ERROR"
+        )
+        
+    return json_data.get("data", "")

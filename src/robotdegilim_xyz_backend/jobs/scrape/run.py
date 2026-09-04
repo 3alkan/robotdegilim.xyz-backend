@@ -48,3 +48,12 @@ def run_scrape() -> None:
         
         logger.info(f"Targeting semester: {current_semester['name']} ({current_semester['code']}) with {len(programs)} programs.")
 
+        # Step 5: Iterate over programs and fetch their table data via POST requests
+        for dept_code in final_data["programs"].keys():
+            html_table = fetch.fetch_program_courses(
+                semester_code=current_semester["code"], 
+                program_code=dept_code, 
+                stamp_token=stamp_token
+            )
+            table_soup = BeautifulSoup(html_table, "html.parser")
+            
