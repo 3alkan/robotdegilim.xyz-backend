@@ -7,7 +7,6 @@ router = APIRouter()
 @router.post("/scrape", response_model=JobResponse)
 def trigger_scrape_job():
     """
-    Trigger the main scraping job.
+    Enqueue the main scraping job to be processed by a worker.
     """
-    result = enqueue_job(job_name="scrape")
-    return JobResponse(**result)
+    return enqueue_job(job_name="scrape")
