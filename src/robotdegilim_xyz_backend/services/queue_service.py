@@ -1,5 +1,5 @@
 from robotdegilim_xyz_backend.clients.s3_client import s3_client
-from robotdegilim_xyz_backend.utils.time import get_now_utc_string
+from robotdegilim_xyz_backend.utils.time import get_now_string
 from robotdegilim_xyz_backend.core.constants import S3Prefix
 from robotdegilim_xyz_backend.schemas.job import JobResponse
 
@@ -20,7 +20,7 @@ def enqueue_job(job_name: str, payload: dict | None = None) -> JobResponse:
         )
         
     # 2. Generate a visual timestamp for the filename
-    timestamp = get_now_utc_string()
+    timestamp = get_now_string()
     file_key = f"{S3Prefix.QUEUE}{job_name}_{timestamp}.pending"
     
     # 3. Upload the ticket to reserve the spot

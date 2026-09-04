@@ -6,7 +6,7 @@ from robotdegilim_xyz_backend.core.logging import setup_logging
 from robotdegilim_xyz_backend.core.config import get_settings
 from robotdegilim_xyz_backend.clients.s3_client import s3_client
 from robotdegilim_xyz_backend.worker.registry import JOB_REGISTRY
-from robotdegilim_xyz_backend.utils.time import get_now_utc_string
+from robotdegilim_xyz_backend.utils.time import get_now_string
 from robotdegilim_xyz_backend.core.constants import S3Prefix, GlobalLock
 from robotdegilim_xyz_backend.services.queue_service import enqueue_job
 
@@ -90,7 +90,7 @@ def _execute_job(job_name: str):
         s3_client.delete(prefix=f"{S3Prefix.JOB_STATES}{job_name}_")
         
         # Upload the new state file with the exact current timestamp in the name
-        timestamp = get_now_utc_string()
+        timestamp = get_now_string()
         new_state_file = f"{S3Prefix.JOB_STATES}{job_name}_{timestamp}.{status_ext}"
         s3_client.upload_json(new_state_file)
         logger.info(f"Updated job state: {new_state_file}")
@@ -106,7 +106,7 @@ def main_loop():
                 continue
                 
             # Claim the global lock
-            s3_client.upload_json(GlobalLock.WORKER, {"locked_by": "worker", "time": get_now_utc_string()})
+            s3_client.upload_json(GlobalLock.WORKER, {"locked_by": "worker", "time": get_now_string()})
             
             try:
                 # 1. Always prioritize the manual queue

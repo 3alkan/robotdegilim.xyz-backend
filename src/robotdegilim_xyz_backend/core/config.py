@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     PROJECT_DESCRIPTION: str = "Backend for robotdegilim.xyz"
     VERSION: str = "0.1.0"
     API_V1_STR: str = "/api/v1"
+    TIMEZONE: str = "Europe/Istanbul"
 
     # CORS Settings (can be parsed from a string like "http://localhost,https://example.com")
     BACKEND_CORS_ORIGINS: list[str] = ["*"]
