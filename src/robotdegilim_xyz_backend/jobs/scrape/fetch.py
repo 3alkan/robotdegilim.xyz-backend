@@ -11,7 +11,7 @@ def get_initial_page() -> str:
     returns the raw HTML containing dynamic package URLs.
     """
     logger.info("Fetching SIS main page to initialize session...")
-    response = human_client.get(f"{SISConstants.BASE_URL}/")
+    response = human_client.get(f"{SISConstants.BASE_URL.value}/")
     return response.text
 
 def get_semester_info_page(package_url: str) -> str:
@@ -22,7 +22,7 @@ def get_semester_info_page(package_url: str) -> str:
     logger.info("Fetching semester info page with dynamic route...")
     
     # package_url will look like "get.php?package=UzXQ..."
-    url = package_url if package_url.startswith("http") else f"{SISConstants.BASE_URL}/{package_url}"
+    url = package_url if package_url.startswith("http") else f"{SISConstants.BASE_URL.value}/{package_url}"
     
     response = human_client.get(url)
     return response.text
@@ -42,7 +42,7 @@ def fetch_program_courses(semester_code: str, program_code: str, stamp_token: st
         "stamp": stamp_token
     }
     
-    response = human_client.post(f"{SISConstants.BASE_URL}/main.php", data=payload)
+    response = human_client.post(f"{SISConstants.BASE_URL.value}/main.php", data=payload)
     json_data = response.json()
     
     if json_data.get("error"):

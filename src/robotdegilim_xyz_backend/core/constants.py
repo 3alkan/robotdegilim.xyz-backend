@@ -5,6 +5,7 @@ class S3Prefix(str, Enum):
     QUEUE = "queue/"
     JOB_STATES = "job-states/"
     LOCKS = "locks/"
+    DATA = "data/"
 
 class GlobalLock(str, Enum):
     """Global system lock files."""

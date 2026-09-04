@@ -9,7 +9,7 @@ def enqueue_job(job_name: str, payload: dict | None = None) -> JobResponse:
     If a job of the same type is already pending, it deduplicates and skips.
     """
     # 1. Check for deduplication
-    prefix = f"{S3Prefix.QUEUE}{job_name}_"
+    prefix = f"{S3Prefix.QUEUE.value}{job_name}_"
     existing_files = s3_client.list_files(prefix)
     
     if existing_files:
@@ -21,7 +21,7 @@ def enqueue_job(job_name: str, payload: dict | None = None) -> JobResponse:
         
     # 2. Generate a visual timestamp for the filename
     timestamp = get_now_string()
-    file_key = f"{S3Prefix.QUEUE}{job_name}_{timestamp}.pending"
+    file_key = f"{S3Prefix.QUEUE.value}{job_name}_{timestamp}.pending"
     
     # 3. Upload the ticket to reserve the spot
     s3_client.upload_json(file_key, payload)

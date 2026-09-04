@@ -7,6 +7,7 @@ from robotdegilim_xyz_backend.clients.s3_client import s3_client
 from robotdegilim_xyz_backend.jobs.scrape import fetch, parse
 from robotdegilim_xyz_backend.utils.time import get_now_iso_string
 from robotdegilim_xyz_backend.schemas.scrape_data import ScrapeData
+from robotdegilim_xyz_backend.core.constants import S3Prefix
 
 logger = logging.getLogger(__name__)
 
@@ -68,3 +69,20 @@ def run_scrape() -> None:
         validated_data = ScrapeData(**final_data)
         logger.info("Data successfully validated through Pydantic! No structural errors found.")
         
+        # Convert the Pydantic object back into a clean, validated dictionary
+        clean_payload = validated_data.model_dump()
+        
+        # Save to a single, authoritative endpoint for the current semester
+        live_key = f"{S3Prefix.DATA.value}courses_{current_semester['code']}.json"
+        s3_client.upload_json(live_key, clean_payload)
+        
+        logger.info(f"Live data successfully updated on S3: {live_key}")
+        
+    except Exception as e:
+        logger.exception("Scrape process failed.")
+        # If it's not an AppException already, wrap it so the structured logger catches it beautifully
+        if not isinstance(e, AppException):
+            raise AppException("Scrape process encountered a fatal error.", cause=e)
+        raise
+    finally:
+        app_context.set({})
