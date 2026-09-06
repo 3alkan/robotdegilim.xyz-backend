@@ -24,7 +24,7 @@ def process_queue() -> bool:
     target_job = pending_files[0]
     file_key = target_job["key"]
     
-    # Extract job name from filename: queue/scrape_20260830_100000.pending -> scrape
+    # Extract job name from filename: queue/scrape_courses_20260830_100000.pending -> scrape_courses
     filename = file_key.split("/")[-1]
     job_name = filename.split("_")[0]
     

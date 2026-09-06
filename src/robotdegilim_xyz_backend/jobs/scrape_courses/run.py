@@ -4,21 +4,21 @@ from robotdegilim_xyz_backend.core.config import get_settings
 from robotdegilim_xyz_backend.core.context import app_context
 from robotdegilim_xyz_backend.core.exceptions import AppException
 from robotdegilim_xyz_backend.clients.s3_client import s3_client
-from robotdegilim_xyz_backend.jobs.scrape import fetch, parse
+from robotdegilim_xyz_backend.jobs.scrape_courses import fetch, parse
 from robotdegilim_xyz_backend.utils.time import get_now_iso_string
 from robotdegilim_xyz_backend.schemas.scrape_data import ScrapeData
 from robotdegilim_xyz_backend.core.constants import S3Prefix
 
 logger = logging.getLogger(__name__)
 
-def run_scrape() -> None:
-    """Run full scrape process, publish output files directly to S3 memory."""
+def run_scrape_courses() -> None:
+    """Run full scrape courses process, publish output files directly to S3 memory."""
     settings = get_settings()
-    app_context.set({"job_name": "scrape"})
+    app_context.set({"job_name": "scrape_courses"})
     
     try:
         # Step 1: Initialize session and get main page
-        logger.info("Starting scrape job: Fetching main page...")
+        logger.info("Starting scrape courses job: Fetching main page...")
         main_html = fetch.get_initial_page()
         main_soup = BeautifulSoup(main_html, "html.parser")
         

@@ -1,13 +1,12 @@
 from datetime import timedelta
-from robotdegilim_xyz_backend.jobs.scrape.run import run_scrape
+from robotdegilim_xyz_backend.jobs.scrape_courses.run import run_scrape_courses
 
-# The Central Job Registry
-# Maps a job name to its execution function and auto-run threshold.
+# This dictionary maps job names to their handler functions.
 # If a threshold is None, the job will NEVER auto-schedule (manual trigger only).
 
 JOB_REGISTRY = {
-    "scrape": {
-        "handler": run_scrape,
+    "scrape_courses": {
+        "handler": run_scrape_courses,
         "auto_run_threshold": timedelta(hours=12)
     },
     # Future jobs can simply be added here!
