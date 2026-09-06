@@ -67,6 +67,6 @@ class Metadata(BaseModel):
     semester_name: str
     updated_at: str
 
-class ScrapeData(BaseModel):
+class ScrapeCoursesData(BaseModel):
     metadata: Metadata
     programs: Dict[str, Program]

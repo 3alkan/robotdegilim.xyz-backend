@@ -6,7 +6,7 @@ from robotdegilim_xyz_backend.core.exceptions import AppException
 from robotdegilim_xyz_backend.clients.s3_client import s3_client
 from robotdegilim_xyz_backend.jobs.scrape_courses import fetch, parse
 from robotdegilim_xyz_backend.utils.time import get_now_iso_string
-from robotdegilim_xyz_backend.schemas.scrape_data import ScrapeData
+from robotdegilim_xyz_backend.schemas.scrape_courses_data import ScrapeCoursesData
 from robotdegilim_xyz_backend.core.constants import S3Prefix
 
 logger = logging.getLogger(__name__)
@@ -66,7 +66,7 @@ def run_scrape_courses() -> None:
         logger.info(f"Scrape job completed successfully for {len(final_data['programs'])} programs.")
         
         # Validate the entire structured dictionary against our Pydantic schema
-        validated_data = ScrapeData(**final_data)
+        validated_data = ScrapeCoursesData(**final_data)
         logger.info("Data successfully validated through Pydantic! No structural errors found.")
         
         # Convert the Pydantic object back into a clean, validated dictionary
