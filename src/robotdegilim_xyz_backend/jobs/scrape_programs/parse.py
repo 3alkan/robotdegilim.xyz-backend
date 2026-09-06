@@ -4,4 +4,4 @@ from robotdegilim_xyz_backend.core.exceptions import AppException
 
 logger = logging.getLogger(__name__)
 
-# TODO: Implement parse functions for curriculums flow
+# TODO: Implement parse functions for programs flow

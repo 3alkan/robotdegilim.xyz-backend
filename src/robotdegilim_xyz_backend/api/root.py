@@ -18,6 +18,6 @@ def api_discovery():
             "docs": "/docs",
             "health": f"{settings.API_V1_STR}/health",
             "scrape_courses": f"{settings.API_V1_STR}/jobs/scrape_courses",
-            "scrape_curriculums": f"{settings.API_V1_STR}/jobs/scrape_curriculums"
+            "scrape_programs": f"{settings.API_V1_STR}/jobs/scrape_programs"
         }
     }

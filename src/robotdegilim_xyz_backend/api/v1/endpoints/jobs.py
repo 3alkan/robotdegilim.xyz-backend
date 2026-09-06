@@ -11,9 +11,9 @@ def trigger_scrape_courses_job():
     """
     return enqueue_job(job_name="scrape_courses")
 
-@router.post("/scrape_curriculums", response_model=JobResponse)
-def trigger_scrape_curriculums_job():
+@router.post("/scrape_programs", response_model=JobResponse)
+def trigger_scrape_programs_job():
     """
-    Enqueue the curriculums scraping job to be processed by a worker.
+    Enqueue the programs scraping job to be processed by a worker.
     """
-    return enqueue_job(job_name="scrape_curriculums")
+    return enqueue_job(job_name="scrape_programs")

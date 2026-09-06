@@ -5,4 +5,4 @@ from robotdegilim_xyz_backend.core.constants import SISConstants
 
 logger = logging.getLogger(__name__)
 
-# TODO: Implement fetch functions for curriculums flow
+# TODO: Implement fetch functions for programs flow
