@@ -1,0 +1,20 @@
+# Fly/Docker Configs
+fly.toml
+Dockerfile
+
+# Version Control
+.git/
+.github/
+
+# Environments & Secrets
+.env
+.env.example
+.venv/
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# Documentation
+docs/
+README.md
