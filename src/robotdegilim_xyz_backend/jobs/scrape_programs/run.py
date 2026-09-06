@@ -38,13 +38,28 @@ def run_scrape_programs() -> None:
         
         logger.info(f"Successfully extracted {len(program_keys)} programs to process.")
         
+        # Extract the initial stamp from the search results JSON (it contains an HTML form at the end)
+        current_stamp = parse.extract_stamp_token(programs_table_soup)
+        
         final_programs = {}
         for index, prog_meta in enumerate(program_keys):
             p_key = prog_meta["program_key"]
             logger.info(f"[{index+1}/{len(program_keys)}] Fetching details for program: {p_key}")
             
-            detail_html = fetch.fetch_program_details(stamp, p_key)
+            detail_html = fetch.fetch_program_details(current_stamp, p_key)
+            
+            if index == 0:
+                logger.error(f"DEBUG HTML LENGTH: {len(detail_html)}")
+                # logger.error(f"DEBUG HTML SNIPPET: {detail_html[:1000]}")
+                
             parsed_details = parse.parse_program_details(detail_html)
+            
+            # Extract the new stamp from this detail page for the next request
+            try:
+                detail_soup = BeautifulSoup(detail_html, "html.parser")
+                current_stamp = parse.extract_stamp_token(detail_soup)
+            except Exception as e:
+                logger.warning(f"Could not extract new stamp from {p_key}, falling back to old stamp. Error: {e}")
             
             # Merge list response metadata with detailed metadata
             merged = {**prog_meta, **parsed_details}
