@@ -48,10 +48,6 @@ def run_scrape_programs() -> None:
             
             detail_html = fetch.fetch_program_details(current_stamp, p_key)
             
-            if index == 0:
-                logger.error(f"DEBUG HTML LENGTH: {len(detail_html)}")
-                # logger.error(f"DEBUG HTML SNIPPET: {detail_html[:1000]}")
-                
             parsed_details = parse.parse_program_details(detail_html)
             
             # Extract the new stamp from this detail page for the next request
