@@ -74,7 +74,7 @@ def run_scrape_courses() -> None:
         
         # Save to a single, authoritative endpoint for the current semester
         live_key = f"{S3Prefix.DATA.value}scrape_courses/{current_semester['code']}.json"
-        s3_client.upload_json(live_key, clean_payload)
+        s3_client.upload_json(live_key, clean_payload, public_read=True)
         
         logger.info(f"Live data successfully updated on S3: {live_key}")
         

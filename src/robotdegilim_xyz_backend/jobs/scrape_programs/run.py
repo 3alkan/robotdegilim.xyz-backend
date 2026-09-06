@@ -75,7 +75,7 @@ def run_scrape_programs() -> None:
         
         # Upload to S3
         logger.info("Uploading final programs.json to S3...")
-        s3_client.upload_json("data/scrape_programs/programs.json", final_data.model_dump(mode='json'))
+        s3_client.upload_json("data/scrape_programs/programs.json", final_data.model_dump(mode='json'), public_read=True)
         logger.info("Successfully finished programs scrape job.")
         
     except Exception as e:

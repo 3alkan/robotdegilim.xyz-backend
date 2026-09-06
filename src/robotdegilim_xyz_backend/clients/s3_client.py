@@ -21,18 +21,24 @@ class S3Client:
             aws_secret_access_key=settings.S3_SECRET_ACCESS_KEY,
         )
 
-    def upload_json(self, key: str, payload: dict | None = None) -> None:
+    def upload_json(self, key: str, payload: dict | None = None, public_read: bool = False) -> None:
         if payload is None:
             payload = {}
             
         json_data = json.dumps(payload).encode('utf-8')
+        
+        kwargs = {
+            'Bucket': self.bucket,
+            'Key': key,
+            'Body': json_data,
+            'ContentType': 'application/json'
+        }
+        
+        if public_read:
+            kwargs['ACL'] = 'public-read'
+            
         try:
-            self.client.put_object(
-                Bucket=self.bucket,
-                Key=key,
-                Body=json_data,
-                ContentType='application/json'
-            )
+            self.client.put_object(**kwargs)
         except (ClientError, NoCredentialsError) as e:
             logger.error(f"S3 Upload failed for key {key}: {e}")
             raise AppException("Failed to communicate with the storage service.", status_code=503)
