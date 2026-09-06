@@ -7,7 +7,7 @@ python_bin = sys.executable
 
 def run_server():
     print("Starting FastAPI Server...")
-    subprocess.run([python_bin, "-m", "uvicorn", "robotdegilim_xyz_backend.main:app", "--reload", "--port", "8080"])
+    subprocess.run([python_bin, "-m", "uvicorn", "robotdegilim_xyz_backend.main:app", "--reload", "--port", "8000"])
 
 def run_worker():
     print("Starting Background Worker...")
@@ -15,7 +15,7 @@ def run_worker():
 
 def run_both():
     print("Starting BOTH Server and Worker...")
-    server_process = subprocess.Popen([python_bin, "-m", "uvicorn", "robotdegilim_xyz_backend.main:app", "--reload", "--port", "8080"])
+    server_process = subprocess.Popen([python_bin, "-m", "uvicorn", "robotdegilim_xyz_backend.main:app", "--reload", "--port", "8000"])
     worker_process = subprocess.Popen([python_bin, "-m", "robotdegilim_xyz_backend.worker.main"])
     
     try:
