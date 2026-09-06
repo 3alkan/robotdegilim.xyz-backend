@@ -26,7 +26,7 @@ def process_queue() -> bool:
     
     # Extract job name from filename: queue/scrape_courses_20260830_100000.pending -> scrape_courses
     filename = file_key.split("/")[-1]
-    job_name = filename.split("_")[0]
+    job_name = filename.rsplit("_", 2)[0]
     
     if job_name not in JOB_REGISTRY:
         logger.error(f"Unknown job '{job_name}' found in queue. Deleting ticket.")
