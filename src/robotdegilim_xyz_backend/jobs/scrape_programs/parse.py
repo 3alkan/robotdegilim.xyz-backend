@@ -35,11 +35,11 @@ def extract_stamp_token(soup: BeautifulSoup) -> str:
 def extract_program_keys(soup: BeautifulSoup) -> list[dict]:
     """
     Parses the massive HTML table of programs to extract their table keys.
-    Returns a list of dicts: [{"key": "571|1|1|1", "name": "Computer Engineering", ...}]
+    Returns a list of dicts with all metadata columns.
     """
-    table = soup.find("table", {"id": "SearchResults"})
+    table = soup.find("table", {"id": "SearchResultsProgram"})
     if not table:
-        raise AppException("No SearchResults table found in programs search response.", code="NO_PROGRAMS_TABLE")
+        raise AppException("No SearchResultsProgram table found in programs search response.", code="NO_PROGRAMS_TABLE")
         
     tbody = table.find("tbody")
     if not tbody:
@@ -48,15 +48,13 @@ def extract_program_keys(soup: BeautifulSoup) -> list[dict]:
     programs = []
     
     for row in tbody.find_all("tr"):
-        # The hidden key is stored in the ID of the row: e.g. <tr id="row_571|1|1|1">
-        row_id = row.get("id", "")
-        if not row_id.startswith("row_"):
+        # The hidden key is stored in the key attribute of the row: e.g. <tr key="571|1|1|1">
+        program_key = row.get("key", "")
+        if not program_key:
             continue
             
-        program_key = row_id.replace("row_", "")
-        
         cols = row.find_all("td")
-        if len(cols) < 5:
+        if len(cols) < 12:
             continue
             
         tds = [td.get_text(strip=True) for td in cols]
