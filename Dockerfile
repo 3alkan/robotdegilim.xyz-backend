@@ -10,14 +10,11 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-# Copy dependency files first to leverage Docker cache
-COPY pyproject.toml uv.lock ./
+# Copy the entire application (including src/)
+COPY . .
 
 # Install dependencies using uv (creates a .venv automatically)
 RUN uv sync --frozen --no-dev
-
-# Copy the rest of the application
-COPY . .
 
 # Expose port for the FastAPI server
 EXPOSE 8000
