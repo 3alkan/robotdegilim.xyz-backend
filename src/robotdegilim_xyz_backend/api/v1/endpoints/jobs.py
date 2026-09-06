@@ -7,6 +7,13 @@ router = APIRouter()
 @router.post("/scrape_courses", response_model=JobResponse)
 def trigger_scrape_courses_job():
     """
-    Enqueue the main scraping job to be processed by a worker.
+    Enqueue the main courses scraping job to be processed by a worker.
     """
     return enqueue_job(job_name="scrape_courses")
+
+@router.post("/scrape_curriculums", response_model=JobResponse)
+def trigger_scrape_curriculums_job():
+    """
+    Enqueue the curriculums scraping job to be processed by a worker.
+    """
+    return enqueue_job(job_name="scrape_curriculums")
