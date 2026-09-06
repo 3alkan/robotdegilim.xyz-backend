@@ -1,10 +1,12 @@
 import logging
+import datetime
 from bs4 import BeautifulSoup
 from robotdegilim_xyz_backend.core.config import get_settings
 from robotdegilim_xyz_backend.core.context import app_context
 from robotdegilim_xyz_backend.core.exceptions import AppException
 from robotdegilim_xyz_backend.clients.s3_client import s3_client
 from robotdegilim_xyz_backend.jobs.scrape_programs import fetch, parse
+from robotdegilim_xyz_backend.schemas.scrape_programs_data import ScrapeProgramsData, ProgramDetails
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +34,38 @@ def run_scrape_programs() -> None:
         programs_json_html = fetch.search_all_programs(stamp)
         programs_table_soup = BeautifulSoup(programs_json_html, "html.parser")
         
+        program_keys = parse.extract_program_keys(programs_table_soup)
+        
+        logger.info(f"Successfully extracted {len(program_keys)} programs to process.")
+        
+        final_programs = {}
+        for index, prog_meta in enumerate(program_keys):
+            p_key = prog_meta["program_key"]
+            logger.info(f"[{index+1}/{len(program_keys)}] Fetching details for program: {p_key}")
+            
+            detail_html = fetch.fetch_program_details(stamp, p_key)
+            parsed_details = parse.parse_program_details(detail_html)
+            
+            # Merge list response metadata with detailed metadata
+            merged = {**prog_meta, **parsed_details}
+            
+            # Validate through Pydantic
+            try:
+                program_model = ProgramDetails(**merged)
+                final_programs[p_key] = program_model
+            except Exception as e:
+                logger.error(f"Failed to validate ProgramDetails for {p_key}: {e}")
+                
+        # Create final root model
+        final_data = ScrapeProgramsData(
+            updated_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            programs=final_programs
+        )
+        
+        # Upload to S3
+        logger.info("Uploading final programs.json to S3...")
+        s3_client.upload_json("data/scrape_programs/programs.json", final_data.model_dump(mode='json'))
+        logger.info("Successfully finished programs scrape job.")
         
     except Exception as e:
         logger.exception("Programs scrape process failed.")

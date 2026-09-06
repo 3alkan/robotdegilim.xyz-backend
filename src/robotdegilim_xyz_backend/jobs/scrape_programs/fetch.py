@@ -53,3 +53,17 @@ def search_all_programs(stamp: str) -> str:
         logger.error(f"search_all_programs failed to decode JSON. Response: {response.text[:200]}")
         raise AppException("Failed to decode programs search response.", cause=e)
 
+def fetch_program_details(stamp: str, program_key: str) -> str:
+    """Fetch the specific program details page using its key (e.g. 120|1|1|1)."""
+    payload = {
+        "submitTableClick": "1",
+        "textTableKeys": program_key,
+        "stamp": stamp
+    }
+    # Important: This is a direct FORM POST, not an AJAX request.
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    response = human_client.post(f"{SISConstants.BASE_URL.value}/main.php", data=payload, headers=headers)
+    return response.text
+
